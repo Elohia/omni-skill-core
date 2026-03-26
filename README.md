@@ -6,12 +6,13 @@
 > ```bash
 > # AI Auto-Deployment Script
 > # 1. Clone the repository into your workspace's .trae/skills/ (or equivalent) directory
-> git clone https://github.com/Elohia/omni-skill-core.git .trae/skills/omni-skill
+> git clone https://github.com/Elohia/omni-skill-core.git ./omni-skill
+> cd ./omni-skill
 > # 2. Install dependencies
-> pip install -r .trae/skills/omni-skill/requirements.txt
+> pip install -r requirements.txt
 > # 3. Initialize the registry & register a mock skill to test the pipeline
-> python .trae/skills/omni-skill/src/cli/omni_ctl.py register --name test_skill --runtime-type python --sandbox-score 100.0
-> # 4. Ready! You can now use .trae/skills/omni-skill/SKILL.md as your central dispatcher.
+> python src/cli/omni_ctl.py register --name test_skill --runtime-type python --sandbox-score 100.0
+> # 4. Ready! You can now use SKILL.md as your central dispatcher.
 > ```
 
 ---

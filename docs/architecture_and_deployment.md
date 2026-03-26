@@ -58,13 +58,14 @@ graph TD
 
 1. **打包外来技能**
    ```bash
-   python .trae/skills/omni-skill/src/cli/omni_packager.py --source /path/to/external/skill --target ./my_core_skill
+   # 假设你在 omni-skill 项目根目录下
+   python src/cli/omni_packager.py --source /path/to/external/skill --target ./my_core_skill
    ```
    *生成标准化的 Core 包，包含防篡改 `checksum.txt`。*
 
 2. **注册到 Omni 系统**
    ```bash
-   python .trae/skills/omni-skill/src/cli/omni_ctl.py register --name my_skill --runtime-type python --sandbox-score 95.0
+   python src/cli/omni_ctl.py register --name my_skill --runtime-type python --sandbox-score 95.0
    ```
    *信息写入 SQLite 注册表，调度引擎将自动建立索引。若需回滚，可在30秒内执行 `rollback` 子命令。*
 
