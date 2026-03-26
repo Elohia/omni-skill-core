@@ -22,6 +22,55 @@ class DispatcherEngine:
 
         # 技能注册表
         self.skill_registry: Dict[str, Dict[str, str]] = {}
+        
+        # 尝试从持久化数据库加载已注册的技能
+        self._load_from_db()
+
+    def _load_from_db(self):
+        """从 SQLite 数据库加载并重建路由和索引 (解决重启后状态丢失问题)"""
+        import sqlite3
+        import json
+        import os
+        
+        if not os.path.exists(settings.DB_PATH):
+            return
+            
+        try:
+            conn = sqlite3.connect(settings.DB_PATH)
+            cursor = conn.cursor()
+            cursor.execute("SELECT name, metadata FROM skills WHERE status = 'active'")
+            rows = cursor.fetchall()
+            
+            for row in rows:
+                skill_id = row[0]
+                try:
+                    meta = json.loads(row[1])
+                except json.JSONDecodeError:
+                    meta = {}
+                    
+                # 从元数据中提取触发条件和描述
+                trigger_path = meta.get("trigger_path")
+                trigger_key = meta.get("trigger_key")
+                nlp_desc = meta.get("description", f"Skill {skill_id}")
+                
+                # 默认约定入口路径（此处可根据实际打包结构动态调整）
+                # 假设通过万能打包器生成的技能统一存放在 src/plugins/<skill_id>
+                # 或由元数据指定
+                module_path = meta.get("entry_module", f"src.plugins.{skill_id}.omni_gateway")
+                class_name = meta.get("entry_class", "gateway_handler")
+                
+                # 重建内存状态
+                self.register_skill(
+                    skill_id=skill_id,
+                    module_path=module_path,
+                    class_name=class_name,
+                    trigger_path=trigger_path,
+                    trigger_key=trigger_key,
+                    nlp_desc=nlp_desc
+                )
+            conn.close()
+        except Exception as e:
+            print(f"[警告] DispatcherEngine 恢复持久化状态失败: {e}")
 
     def register_skill(self, 
                        skill_id: str, 
