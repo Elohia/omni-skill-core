@@ -8,6 +8,9 @@ from concurrent.futures import Future
 from typing import Any, Dict, Optional
 
 # 引入调度引擎和配置
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from dispatcher.dispatcher import DispatcherEngine
 import config.settings as settings
 
