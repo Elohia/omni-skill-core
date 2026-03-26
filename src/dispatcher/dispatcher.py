@@ -76,9 +76,14 @@ class DispatcherEngine:
             raise RuntimeError(f"技能 {skill_id} 加载失败")
 
         # 第三步：投入线程池异步执行
-        # 假设所有技能实例皆有 execute 方法
+        # 针对不同类型的技能实例执行对应逻辑
         if hasattr(skill_instance, "execute"):
             future = self.worker_pool.execute(skill_instance.execute, *args, **kwargs)
-            return future
+        elif hasattr(skill_instance, "gateway_handler"):
+            future = self.worker_pool.execute(skill_instance.gateway_handler, *args, **kwargs)
+        elif callable(skill_instance):
+            future = self.worker_pool.execute(skill_instance, *args, **kwargs)
         else:
-            raise TypeError(f"技能 {skill_id} 缺少 execute 方法")
+            raise TypeError(f"技能 {skill_id} 缺少可执行入口 (execute / gateway_handler)")
+        
+        return future
