@@ -58,7 +58,7 @@ graph TD
 
 1. **打包外来技能**
    ```bash
-   # 假设你在 omni-skill 项目根目录下
+   # 请先 cd 到克隆后的 omni-skill 项目根目录下执行
    python src/cli/omni_packager.py --source /path/to/external/skill --target ./my_core_skill
    ```
    *生成标准化的 Core 包，包含防篡改 `checksum.txt`。*
