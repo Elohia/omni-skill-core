@@ -124,12 +124,24 @@ def register(args):
     cursor = conn.cursor()
     
     name = args.name
-    metadata = args.metadata
+    metadata_str = args.metadata
     runtime_type = args.runtime_type
     sandbox_score = args.sandbox_score
     status = args.status
     current_time = time.time()
     
+    # 如果 metadata 只有默认的 "{}"，尝试从已打包好的 core package 中提取 manifest.json
+    if metadata_str == "{}" or metadata_str == "":
+        manifest_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "plugins", name, "manifest.json")
+        if os.path.exists(manifest_path):
+            try:
+                with open(manifest_path, "r", encoding="utf-8") as f:
+                    manifest = json.load(f)
+                    if "metadata" in manifest:
+                        metadata_str = json.dumps(manifest["metadata"], ensure_ascii=False)
+            except Exception as e:
+                print(f"[警告] 无法读取 {manifest_path} 中的元数据: {e}")
+                
     # 获取之前状态
     previous_state = get_current_state(cursor, name)
     
@@ -146,7 +158,7 @@ def register(args):
             sandbox_score=excluded.sandbox_score,
             status=excluded.status,
             updated_at=excluded.updated_at
-    ''', (name, metadata, runtime_type, sandbox_score, status, current_time))
+    ''', (name, metadata_str, runtime_type, sandbox_score, status, current_time))
     
     conn.commit()
     update_skill_md_registry(conn)
