@@ -227,6 +227,9 @@ def rollback(args):
     conn.commit()
     update_skill_md_registry(conn)
     conn.close()
+    
+    # 卸载后的额外还原逻辑：如果注册时生成了打包文件，可以考虑删除它
+    # （这里的还原仅针对数据库注册状态和 SKILL.md，实际打包生成的代码目录需要根据您的具体设计清理）
     print(f"✅ 技能 '{name}' 已成功回滚到 '{action}' 操作前的状态。")
 
 def main():
