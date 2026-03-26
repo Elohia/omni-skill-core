@@ -16,15 +16,15 @@ from typing import Dict, Any
 
 # 导入统一配置
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from config.settings import DB_PATH, SKILL_MD_PATH
+import config.settings as settings
 
 def update_skill_md_registry(conn: sqlite3.Connection):
     """
     动态更新 SKILL.md，将已注册的子技能列表写入其中，
     以便大模型 (LLM) 能够知道当前有哪些可用的子技能进行调度。
     """
-    if not os.path.exists(SKILL_MD_PATH):
-        print(f"[警告] 未找到 {SKILL_MD_PATH}，跳过更新。")
+    if not os.path.exists(settings.SKILL_MD_PATH):
+        print(f"[警告] 未找到 {settings.SKILL_MD_PATH}，跳过更新。")
         return
 
     cursor = conn.cursor()
@@ -46,7 +46,7 @@ def update_skill_md_registry(conn: sqlite3.Connection):
     registry_content += "\n*(此列表由 `omni_ctl` 自动维护，请勿手动修改)*\n"
 
     try:
-        with open(SKILL_MD_PATH, 'r', encoding='utf-8') as f:
+        with open(settings.SKILL_MD_PATH, 'r', encoding='utf-8') as f:
             content = f.read()
 
         # 查找替换标记，如果没有则在末尾追加
@@ -60,7 +60,7 @@ def update_skill_md_registry(conn: sqlite3.Connection):
         else:
             new_content = content + "\n\n" + start_marker + "\n" + registry_content + end_marker + "\n"
 
-        with open(SKILL_MD_PATH, 'w', encoding='utf-8') as f:
+        with open(settings.SKILL_MD_PATH, 'w', encoding='utf-8') as f:
             f.write(new_content)
         
         print(f"[通知] SKILL.md 的可用子技能列表已更新。")
@@ -69,7 +69,7 @@ def update_skill_md_registry(conn: sqlite3.Connection):
 
 def init_db():
     """初始化数据库表结构"""
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(settings.DB_PATH)
     cursor = conn.cursor()
     # 创建技能主表
     cursor.execute('''
@@ -120,7 +120,7 @@ def save_history(cursor, name, action, previous_state):
 
 def register(args):
     """注册技能"""
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(settings.DB_PATH)
     cursor = conn.cursor()
     
     name = args.name
@@ -155,7 +155,7 @@ def register(args):
 
 def deregister(args):
     """注销技能"""
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(settings.DB_PATH)
     cursor = conn.cursor()
     
     name = args.name
@@ -179,7 +179,7 @@ def deregister(args):
 
 def rollback(args):
     """回滚 30 秒内的最近一次操作"""
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(settings.DB_PATH)
     cursor = conn.cursor()
     
     name = args.name
